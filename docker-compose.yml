@@ -15,12 +15,20 @@ services:
     volumes:
       - "./config.php:/var/www/tt-rss/config.php"
       - "ttrss:/var/www/tt-rss"
+  ttrss-updater:
+    build: .
+    command: [ "php", "./update.php", "--daemon" ]
+    volumes:
+      - "./config.php:/var/www/tt-rss/config.php"
+      - "ttrss:/var/www/tt-rss"
   db:
     image: postgres:latest
     environment:
       POSTGRES_USER: ttrss
       POSTGRES_DB: ttrss
       POSTGRES_PASSWORD: ttrss
-
+    volumes:
+      - ttdb
 volumes:
   ttrss:
+  ttdb:
