@@ -1,0 +1,32 @@
+#!/usr/bin/env php
+
+#
+# https://github.com/clue/docker-ttrss/blob/master/configure-db.php
+#
+
+<?php
+
+$pdo = dbconnect();
+
+try {
+    $pdo->query('SELECT 1 FROM ttrss_feeds');
+}
+catch (PDOException $e) {
+    echo 'Database table not found, applying schema... ' . PHP_EOL;
+    $schema = file_get_contents('schema/ttrss_schema_pgsql.sql');
+    $schema = preg_replace('/--(.*?);/', '', $schema);
+    $schema = preg_replace('/[\r\n]/', ' ', $schema);
+    $schema = trim($schema, ' ;');
+    foreach (explode(';', $schema) as $stm) {
+        $pdo->exec($stm);
+    }
+    unset($pdo);
+}
+
+function dbconnect()
+{
+    $dsn = 'pgsql:user=ttrss;dbname=ttrss;password=ttrss;host=db;port=5432';
+    $pdo = new \PDO($dsn, 'ttrss', 'ttrss');
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    return $pdo;
+}

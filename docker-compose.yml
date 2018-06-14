@@ -1,0 +1,26 @@
+version: '3.2'
+
+services:
+
+  nginx:
+    image: nginx:1.15.0-alpine
+    volumes:
+      - "./etc/nginx.conf:/etc/nginx/nginx.conf:ro"
+      - "ttrss:/var/www/tt-rss"
+    command: [nginx-debug, '-g', 'daemon off;']
+    ports:
+      - "8080:80"
+  ttrss:
+    build: .
+    volumes:
+      - "./config.php:/var/www/tt-rss/config.php"
+      - "ttrss:/var/www/tt-rss"
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ttrss
+      POSTGRES_DB: ttrss
+      POSTGRES_PASSWORD: ttrss
+
+volumes:
+  ttrss:
